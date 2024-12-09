@@ -1,10 +1,15 @@
 import base64
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework import status
+from rest_framework import status, generics
 from .serializers import CustomerSerializer, Customer
+from drf_spectacular.utils import extend_schema
 
 
+@extend_schema(
+    request=None,  # No request body for login, as it's through the Authorization header
+    responses={200: CustomerSerializer, 401: "Invalid credentials", 400: "Bad request"},
+)
 @api_view(["GET"])
 def login(request):
     """
@@ -49,6 +54,9 @@ def login(request):
         )
 
 
+@extend_schema(
+    request=CustomerSerializer, responses={201: CustomerSerializer, 400: "Bad Request"}
+)
 @api_view(["POST"])
 def register(request):
     """
@@ -69,5 +77,33 @@ def register(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["PATCH"])
+def update_customer(request):
+    """
+    Handles updating a customer's data.
+
+    This view expects a PATCH request with a JSON body containing the fields to update.
+    It updates the customer's data and returns the updated data.
+
+    Args:
+        request (Request): The HTTP request object.
+
+    Returns:
+        Response: A Response object containing the serialized customer data.
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED
+        )
+    customer = request.user
+    serializer = CustomerSerializer(customer, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
