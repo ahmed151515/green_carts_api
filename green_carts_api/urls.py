@@ -23,6 +23,6 @@ urlpatterns = [
     # path("products/", include("products.urls")),
     # path("orders/", include("orders.urls")),
     # path("payments/", include("payments.urls")),
-    # to presnt docs of endpoints
+    # to present docs of endpoints
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]
