@@ -6,8 +6,6 @@ from .serializers import CustomerSerializer, Customer
 from drf_spectacular.utils import extend_schema
 
 
-
-
 @extend_schema(
     request=None,  # No request body for login, as it's through the Authorization header
     responses={200: CustomerSerializer, 401: "Invalid credentials", 400: "Bad request"},
@@ -83,12 +81,29 @@ def register(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomerDetail(generics.UpdateAPIView):
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
+@api_view(["PATCH"])
+def update_customer(request):
+    """
+    Handles updating a customer's data.
 
-    def get_object(self):
-        return self.request.user
+    This view expects a PATCH request with a JSON body containing the fields to update.
+    It updates the customer's data and returns the updated data.
 
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+    Args:
+        request (Request): The HTTP request object.
+
+    Returns:
+        Response: A Response object containing the serialized customer data.
+    """
+    if not request.user.is_authenticated:
+        return Response(
+            {"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED
+        )
+    customer = request.user
+    serializer = CustomerSerializer(customer, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

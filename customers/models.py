@@ -34,6 +34,7 @@ class Customer(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
     first_name = models.CharField(max_length=150, blank=True, null=True)
     last_name = models.CharField(max_length=150, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
     objects = CustomerManager()
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

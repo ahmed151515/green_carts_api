@@ -15,6 +15,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             "last_name",
             "is_staff",
             "password",
+            "address",
         ]
 
     def create(self, validated_data):
