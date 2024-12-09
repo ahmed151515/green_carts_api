@@ -1,10 +1,17 @@
 import base64
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework import status
+from rest_framework import status, generics
 from .serializers import CustomerSerializer, Customer
+from drf_spectacular.utils import extend_schema
 
 
+
+
+@extend_schema(
+    request=None,  # No request body for login, as it's through the Authorization header
+    responses={200: CustomerSerializer, 401: "Invalid credentials", 400: "Bad request"},
+)
 @api_view(["GET"])
 def login(request):
     """
@@ -49,6 +56,9 @@ def login(request):
         )
 
 
+@extend_schema(
+    request=CustomerSerializer, responses={201: CustomerSerializer, 400: "Bad Request"}
+)
 @api_view(["POST"])
 def register(request):
     """
@@ -71,3 +81,14 @@ def register(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomerDetail(generics.UpdateAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+
+    def get_object(self):
+        return self.request.user
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
