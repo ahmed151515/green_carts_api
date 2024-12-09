@@ -2,7 +2,7 @@ import base64
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .serializers import UserSerializer, User
+from .serializers import CustomerSerializer, Customer
 
 
 @api_view(["GET"])
@@ -22,19 +22,21 @@ def login(request):
         credentials are valid, or an error message if they are not.
     """
     auth = request.headers.get("Authorization")
-
+    print(auth)
     if auth and auth.startswith("Basic "):
 
         auth = auth.split(" ")[1]
 
         user_pass = base64.b64decode(auth).decode("utf-8")
 
-        username, password = user_pass.split(":")
+        print(user_pass)
 
-        user = User.objects.filter(username=username).first()
+        email, password = user_pass.split(":")
+        print(email, password)
+        user = Customer.objects.filter(email=email).first()
 
         if user and user.check_password(password):
-            serializer = UserSerializer(user)
+            serializer = CustomerSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(
@@ -62,7 +64,7 @@ def register(request):
         Response: A Response object containing the serialized user data.
     """
 
-    serializer = UserSerializer(data=request.data)
+    serializer = CustomerSerializer(data=request.data)
 
     if serializer.is_valid():
         serializer.save()
