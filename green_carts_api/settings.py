@@ -133,6 +133,10 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = "customers.Customer"
 
-
+SPECTACULAR_SETTINGS = {
+    "TITLE": "My API Documentation",
+    "DESCRIPTION": "Description of your API",
+    "VERSION": "1.0.0",
+}
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

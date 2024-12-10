@@ -25,7 +25,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("customers.urls")),
     path("products/", include("products.urls")),
-    # path("orders/", include("orders.urls")),
+    path("orders/", include("orders.urls")),
     # path("payments/", include("payments.urls")),
     # to present docs of endpoints
     path(
