@@ -21,8 +21,8 @@ from rest_framework.routers import DefaultRouter
 from products import views
 
 router = DefaultRouter()
-router.register(r'products', views.ProductsViewSet, basename='products-page')
+router.register("", views.ProductsViewSet, basename="products-page")
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]
