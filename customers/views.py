@@ -81,6 +81,14 @@ def register(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    request=CustomerSerializer,
+    responses={
+        200: CustomerSerializer,
+        400: "Bad Request",
+        401: "Authentication required",
+    },
+)
 @api_view(["PATCH"])
 def update_customer(request):
     """
