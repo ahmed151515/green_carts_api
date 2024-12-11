@@ -2,3 +2,4 @@ django
 djangorestframework
 drf-spectacular
 Pillow
+gunicorn
