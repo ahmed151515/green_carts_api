@@ -1,0 +1,1 @@
+web: gunicorn green_carts_api.wsgi --bind 0.0.0.0:$PORT
