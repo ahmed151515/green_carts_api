@@ -3,3 +3,8 @@ djangorestframework
 drf-spectacular
 Pillow
 gunicorn
+django-storages
+boto3
+python-dotenv
+google-cloud-storage
+django-cloudinary-storage
