@@ -3,6 +3,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core import validators
 
 
 class CustomerManager(BaseUserManager):
@@ -35,6 +36,17 @@ class Customer(AbstractUser):
     first_name = models.CharField(max_length=150, blank=True, null=True)
     last_name = models.CharField(max_length=150, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    phone_number = models.CharField(
+        max_length=11,
+        blank=True,
+        null=True,
+        validators=[
+            validators.RegexValidator(
+                r"^01[0125]\d{8}$",
+                "the phone number must be a valid Egyptian phone number",
+            )
+        ],
+    )
     objects = CustomerManager()
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
