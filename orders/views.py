@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
-from .models import Orders
+from .models import Orders, Items
 from products.models import Products
-from .serializers import OrdersSerializer
+from .serializers import OrdersSerializer, ItemsSerilaizer
 
 # Create your views here.
 
@@ -30,3 +30,10 @@ class OrdersViewSet(viewsets.ModelViewSet):
         product.save()
 
         serializer.save(total_price=total_price, user_id=self.request.user)
+
+class ItemsViewSet(viewsets.ModelViewSet):
+    serializer_class = ItemsSerilaizer
+
+    def get_queryset(self):
+        order_id = self.kwargs.get('order_id')
+        return Items.objects.filter(order__id=order_id)
