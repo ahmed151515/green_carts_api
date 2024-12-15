@@ -34,6 +34,7 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api-auth/", include("rest_framework.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
