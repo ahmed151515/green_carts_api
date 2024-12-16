@@ -2,6 +2,8 @@ import base64
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status, generics
+
+from orders.models import Orders
 from .serializers import CustomerSerializer, Customer
 from drf_spectacular.utils import extend_schema
 
@@ -75,7 +77,10 @@ def register(request):
     serializer = CustomerSerializer(data=request.data)
 
     if serializer.is_valid():
-        serializer.save()
+        user = serializer.save()
+
+        order = Orders.objects.create(user=user, status="CART")
+        order.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
