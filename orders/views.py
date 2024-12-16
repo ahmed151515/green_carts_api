@@ -44,3 +44,7 @@ class OrdersList(generics.ListCreateAPIView):
     queryset = Orders.objects.all()
     serializer_class = OrdersSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+
+
+

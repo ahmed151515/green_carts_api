@@ -1,9 +1,18 @@
 from rest_framework import serializers
-from .models import Orders, Items
+from .models import Orders, Items, Carts
 
 
 class OrdersSerializer(serializers.ModelSerializer):
     items = serializers.PrimaryKeyRelatedField(many=True, queryset=Items.objects.all())
+
+    class Meta:
+        model = Orders
+        fields = "__all__"
+        read_only_fields = ["order_date", "status"]
+
+
+class CartsSerializer(serializers.ModelSerializer):
+    # items = serializers.ls
 
     class Meta:
         model = Orders
