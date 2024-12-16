@@ -26,6 +26,22 @@ class ItemViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, request):
+        """
+        Create a new item in the user's cart.
+
+        This method retrieves an existing order with status "CART" for the 
+        authenticated user, adds a new product to the order with the specified 
+        quantity, updates the total price of the order, and saves the item.
+
+        Args:
+            request (Request): The HTTP request object containing the user and 
+                               data for the new item (product ID and quantity).
+
+        Returns:
+            Response: A Response object containing the serialized data of the 
+                      created item and a status code of 201 if successful, or 
+                      the serializer errors and a status code of 400 if invalid.
+        """
         order = get_object_or_404(Orders, status="CART", user=request.user)
         product_id = request.data.get("product")
         quantity = int(request.data.get("quantity"))
@@ -44,12 +60,39 @@ class ItemViewSet(viewsets.ViewSet):
         return Response(serilaizer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk):
+        """
+        Retrieve a specific item from the user's cart.
+
+        Args:
+            request (Request): The HTTP request object containing user information.
+            pk (int): The primary key of the item to retrieve.
+
+        Returns:
+            Response: A Response object containing the serialized item data.
+
+        Raises:
+            Http404: If the order with status "CART" for the user or the item with the given pk in the order is not found.
+        """
         order = get_object_or_404(Orders, user=request.user, status="CART")
         item = get_object_or_404(Items, pk=pk, order=order)
         serializer = ItemsSerilaizer(item)
         return Response(serializer.data)
 
     def update(self, request, pk):
+        """
+        Update the quantity of an item in the user's cart.
+
+        Args:
+            request (Request): The HTTP request object containing user and data.
+            pk (int): The primary key of the item to be updated.
+
+        Returns:
+            Response: A Response object containing the serialized item data if successful,
+                      or the serializer errors with a 400 status code if validation fails.
+
+        Raises:
+            Http404: If the order or item does not exist.
+        """
         order = get_object_or_404(Orders, user=request.user, status="CART")
         item = get_object_or_404(Items, pk=pk, order=order)
         quantity = int(request.data.get("quantity"))
@@ -65,6 +108,16 @@ class ItemViewSet(viewsets.ViewSet):
         return Response(serilaizer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk):
+        """
+        Delete an item from the user's cart and update the total price of the order.
+
+        Args:
+            request (Request): The HTTP request object.
+            pk (int): The primary key of the item to be deleted.
+
+        Returns:
+            Response: An HTTP response with status 204 (No Content) indicating the item was successfully deleted.
+        """
         order = get_object_or_404(Orders, user=request.user, status="CART")
         item = get_object_or_404(Items, pk=pk, order=order)
         order.total_price -= item.price * item.quantity
@@ -74,6 +127,17 @@ class ItemViewSet(viewsets.ViewSet):
 
 
 class CartsList(generics.ListAPIView):
+    """
+    CartsList is a view that provides a list of orders with the status "CART" for the authenticated user.
+
+    Attributes:
+        permission_classes (list): A list of permission classes that the user must pass to access the view.
+        serializer_class (class): The serializer class used to serialize the orders.
+
+    Methods:
+        get_queryset(self):
+            Returns a queryset of orders filtered by the authenticated user and status "CART".
+    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = OrdersSerializer
 
@@ -82,10 +146,40 @@ class CartsList(generics.ListAPIView):
 
 
 class OrdersCreate(generics.CreateAPIView):
+    """
+    API view for creating an order.
+
+    This view handles the creation of an order for an authenticated user. It changes the status of the order from "CART" to "PENDING" and saves it. The order is then serialized and returned in the response.
+
+    Attributes:
+        permission_classes (list): A list of permission classes that the user must satisfy to access this view.
+        serializer_class (OrdersSerializer): The serializer class used for serializing the order data.
+
+    Methods:
+        create(request, *args, **kwargs):
+            Handles the creation of an order. Changes the order status to "PENDING" and saves it. Returns the serialized order data in the response.
+    """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = OrdersSerializer
 
     def create(self, request, *args, **kwargs):
+        """
+        Handles the creation of an order.
+
+        This method retrieves an order with the status "CART" for the current user,
+        updates its status to "PENDING", and saves the order. It then serializes
+        the order and returns the serialized data in the response with a status
+        code of 201 (Created).
+
+        Args:
+            request (Request): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: A Response object containing the serialized order data and
+            a status code of 201 (Created).
+        """
         order = get_object_or_404(Orders, user=request.user, status="CART")
         order.status = "PENDING"
         order.save()
