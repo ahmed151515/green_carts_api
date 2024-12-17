@@ -13,7 +13,7 @@ urlpatterns = [
     # path("<int:pk>/", OrdersViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name="order-detail"),
     # path("checkout/<int:order_id>/", ItemsViewSet.as_view({'get': 'list'}), name="checkout-page"),
     # path("", views.OrdersList.as_view(), name="orders-page"),
-    path("carts/", views.CartsList.as_view(), name="catrs-page"),
+    path("cart/", views.CartsList.as_view(), name="catr-page"),
     path(
         "item/",
         views.ItemViewSet.as_view({"post": "create"}),

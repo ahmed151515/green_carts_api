@@ -19,32 +19,32 @@ class ItemViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ItemsSerilaizer
 
-    def list(self, request, order_id):
-        order = get_object_or_404(Orders, pk=order_id)
-        items = Items.objects.filter(order=order)
-        serializer = ItemsSerilaizer(items, many=True)
-        return Response(serializer.data)
+    # def list(self, request, order_id):
+    #     order = get_object_or_404(Orders, pk=order_id)
+    #     items = Items.objects.filter(order=order)
+    #     serializer = ItemsSerilaizer(items, many=True)
+    #     return Response(serializer.data)
 
     def create(self, request):
         """
         Create a new item in the user's cart.
 
-        This method retrieves an existing order with status "CART" for the 
-        authenticated user, adds a new product to the order with the specified 
+        This method retrieves an existing order with status "CART" for the
+        authenticated user, adds a new product to the order with the specified
         quantity, updates the total price of the order, and saves the item.
 
         Args:
-            request (Request): The HTTP request object containing the user and 
+            request (Request): The HTTP request object containing the user and
                                data for the new item (product ID and quantity).
 
         Returns:
-            Response: A Response object containing the serialized data of the 
-                      created item and a status code of 201 if successful, or 
+            Response: A Response object containing the serialized data of the
+                      created item and a status code of 201 if successful, or
                       the serializer errors and a status code of 400 if invalid.
         """
-        order = get_object_or_404(Orders, status="CART", user=request.user)
         product_id = request.data.get("product")
         quantity = int(request.data.get("quantity"))
+        order = get_object_or_404(Orders, status="CART", user=request.user)
         product = get_object_or_404(Products, pk=product_id)
         serilaizer = ItemsSerilaizer(
             data={
@@ -93,15 +93,16 @@ class ItemViewSet(viewsets.ViewSet):
         Raises:
             Http404: If the order or item does not exist.
         """
+        quantity = int(request.data.get("quantity"))
         order = get_object_or_404(Orders, user=request.user, status="CART")
         item = get_object_or_404(Items, pk=pk, order=order)
-        quantity = int(request.data.get("quantity"))
         serilaizer = ItemsSerilaizer(item, data={"quantity": quantity}, partial=True)
         if serilaizer.is_valid():
-            if item.quantity < quantity:
-                order.total_price += item.price * (quantity - item.quantity)
-            else:
-                order.total_price -= item.price * (item.quantity - quantity)
+            # if item.quantity < quantity:
+
+            order.total_price += item.price * (quantity - item.quantity)
+            # else:
+            # order.total_price -= item.price * (item.quantity - quantity)
             order.save()
             serilaizer.save(quantity=quantity)
             return Response(serilaizer.data)
@@ -121,8 +122,8 @@ class ItemViewSet(viewsets.ViewSet):
         order = get_object_or_404(Orders, user=request.user, status="CART")
         item = get_object_or_404(Items, pk=pk, order=order)
         order.total_price -= item.price * item.quantity
-        order.save()
         item.delete()
+        order.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -138,6 +139,7 @@ class CartsList(generics.ListAPIView):
         get_queryset(self):
             Returns a queryset of orders filtered by the authenticated user and status "CART".
     """
+
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = OrdersSerializer
 
@@ -159,6 +161,7 @@ class OrdersCreate(generics.CreateAPIView):
         create(request, *args, **kwargs):
             Handles the creation of an order. Changes the order status to "PENDING" and saves it. Returns the serialized order data in the response.
     """
+
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = OrdersSerializer
 
@@ -182,7 +185,9 @@ class OrdersCreate(generics.CreateAPIView):
         """
         order = get_object_or_404(Orders, user=request.user, status="CART")
         order.status = "PENDING"
-        order.save()
         # payment here
+        order.save()
+        neworder = Orders.objects.create(user=request.user, status="CART")
+        neworder.save()
         serializer = OrdersSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
