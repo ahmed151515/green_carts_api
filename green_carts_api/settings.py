@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-)o0dg878b@ihu9nd03&uz3ezt_q7-)qv)ii#u)@r98w1$9d=)n
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "orders",
     "cloudinary_storage",
     "cloudinary",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 ROOT_URLCONF = "green_carts_api.urls"
